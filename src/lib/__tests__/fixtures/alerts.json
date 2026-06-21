@@ -1,0 +1,50 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.04f71722641d51fd342e09a3975658e28cce0705.001.1",
+        "event": "Heat Advisory",
+        "severity": "Moderate",
+        "certainty": "Likely",
+        "urgency": "Expected",
+        "headline": "Heat Advisory issued June 21 at 3:38PM CDT until June 21 at 9:00PM CDT by NWS Lubbock TX",
+        "description": "* WHAT...Temperatures up to 106 on the Caprock, and heat indices as\nhigh as 109 off the Caprock.\n\n* WHERE...The South Plains, Rolling Plains, and far southeastern\nTexas Panhandle.\n\n* WHEN...Until 9 PM CDT this evening.\n\n* IMPACTS...Hot temperatures may cause heat illnesses.",
+        "instruction": "Drink plenty of fluids, stay in an air-conditioned room, stay out of\nthe sun, and check up on relatives and neighbors.\n\nTake extra precautions when outside. Wear lightweight and loose\nfitting clothing. Try to limit strenuous activities to early morning\nor evening. Take action when you see symptoms of heat exhaustion and\nheat stroke.",
+        "areaDesc": "Swisher; Briscoe; Hall; Childress; Lamb; Hale; Floyd; Motley; Cottle; Cochran; Hockley; Lubbock; Crosby; Dickens; King; Yoakum; Terry; Lynn; Garza; Kent; Stonewall",
+        "onset": "2026-06-21T15:38:00-05:00",
+        "expires": "2026-06-21T21:00:00-05:00"
+      }
+    },
+    {
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.6ec9650cff60ee6b7330eff912ba6d7914d3d496.001.1",
+        "event": "Flood Warning",
+        "severity": "Severe",
+        "certainty": "Likely",
+        "urgency": "Expected",
+        "headline": "Flood Warning issued June 21 at 2:39PM CDT until June 26 at 8:00PM CDT by NWS Corpus Christi TX",
+        "description": "...Forecast flooding changed from Minor to Moderate severity and\nincreased in duration for the following rivers in Texas...\n\nNueces River Near Tilden affecting McMullen County.\n\nFor the Nueces River...including Tilden...Moderate flooding is\nforecast.\n\n- Forecast...The river is expected to rise to a crest of 16.0 feet\nearly Tuesday afternoon. It will then fall below flood stage\nearly Friday morning.\n- Flood stage is 14.0 feet.\n- http://www.weather.gov/safety/flood",
+        "instruction": "Turn around, don't drown when encountering flooded roads. Most flood\ndeaths occur in vehicles.\n\nCaution is urged when walking near riverbanks.\n\nAdditional information is available at www.weather.gov/crp.",
+        "areaDesc": "McMullen, TX",
+        "onset": "2026-06-21T14:39:00-05:00",
+        "expires": "2026-06-22T05:45:00-05:00"
+      }
+    },
+    {
+      "properties": {
+        "id": "urn:oid:2.49.0.1.840.0.a15f6fe406cfa8ec2abbaf26c5336f96ae80d51e.001.1",
+        "event": "Flood Warning",
+        "severity": "Severe",
+        "certainty": "Observed",
+        "urgency": "Immediate",
+        "headline": "Flood Warning issued June 21 at 2:23PM CDT until June 25 at 4:00PM CDT by NWS Houston/Galveston TX",
+        "description": "...The Flood Warning continues for the following rivers in Texas...\n\nNavasota River near Normangee affecting Brazos, Madison and\nGrimes Counties.\n\nFor the Navasota River...including Normangee...Moderate flooding is\nforecast.\n\n* WHAT...Moderate flooding is forecast.\n\n* WHERE...Navasota River near Normangee.\n\n* WHEN...From Monday morning to Thursday afternoon.\n\n* IMPACTS...At 18.0 feet, Moderate lowland flooding begins as three\nchannels merge into one below State Highway 21. There is\nwidespread inundation of the floodplain in the vicinity of the\ngage with the river more than 1.5 miles wide. Long Trussel Road in\nnortheast Brazos County below State Highway 21 becomes inundated.\n\n* ADDITIONAL DETAILS...\n- At 2:00 PM CDT Sunday the stage was 10.1 feet.\n- Bankfull stage is 12.0 feet.\n- Forecast...The river is expected to rise above flood stage\ntomorrow morning to a crest of 19.4 feet tomorrow evening. It\nwill then fall below flood stage early Thursday morning.\n- Flood stage is 15.0 feet.\n- Flood History...This crest compares to a previous crest of\n19.3 feet on 12/19/2001.\n- http://www.weather.gov/safety/flood",
+        "instruction": "Turn around, don't drown when encountering flooded roads. Most flood\ndeaths occur in vehicles.\n\nMotorists should not attempt to drive around barricades or drive\ncars through flooded areas.\n\nAdditional information is available at www.weather.gov/hgx.\n\nThe next statement will be issued by Monday afternoon at 100 PM CDT.",
+        "areaDesc": "Brazos, TX; Grimes, TX; Madison, TX",
+        "onset": "2026-06-22T07:00:00-05:00",
+        "expires": "2026-06-22T13:00:00-05:00"
+      }
+    }
+  ]
+}
