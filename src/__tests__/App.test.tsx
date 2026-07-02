@@ -7,6 +7,7 @@ import {
   within,
 } from '@testing-library/react';
 import { App } from '../App';
+import { HourlyForecast } from '../components/HourlyForecast';
 
 import pointFixture from '../lib/__tests__/fixtures/point.json';
 import forecastFixture from '../lib/__tests__/fixtures/forecast.json';
@@ -28,7 +29,14 @@ const nycPoint = structuredClone(pointFixture) as typeof pointFixture;
 nycPoint.properties.relativeLocation.properties.city = 'New York';
 nycPoint.properties.relativeLocation.properties.state = 'NY';
 
+// The hourly strip filters out elapsed hours via Date.now(), and the fixture is
+// anchored to a fixed wall-clock. Pin "now" just before the first hour so the
+// whole 16-period fixture is upcoming and the tests stay deterministic. This
+// spies only on Date.now (not timers), so testing-library's async helpers work.
+const FIXED_NOW = Date.parse('2026-06-21T13:00:00-04:00');
+
 function installFetchMock() {
+  vi.spyOn(Date, 'now').mockReturnValue(FIXED_NOW);
   const impl = vi.fn(async (url: string) => {
     if (url.includes('geocoding.geo.census.gov')) {
       return json({
@@ -126,6 +134,32 @@ describe('<App /> end to end (mocked fetch)', () => {
     expect(within(region).getByRole('list')).toBeInTheDocument();
     // 14:00 -04:00 in New York renders as "2 PM".
     expect(within(region).getByText('2 PM')).toBeInTheDocument();
+  });
+
+  it('caps the hourly strip at 12 hours even though the fixture has 16', async () => {
+    installFetchMock();
+    render(<App />);
+
+    const region = await screen.findByRole('region', {
+      name: /Hourly forecast/i,
+    });
+    fireEvent.click(
+      within(region).getByRole('button', { name: /Hourly forecast/i }),
+    );
+
+    // The fixture carries 16 upcoming periods (all after FIXED_NOW), but the
+    // strip renders at most `hours` (default 12) list items.
+    expect(within(region).getAllByRole('listitem')).toHaveLength(12);
+  });
+
+  it('renders nothing when there are no hourly periods', () => {
+    const { container } = render(
+      <HourlyForecast periods={[]} timeZone="America/New_York" />,
+    );
+    expect(container).toBeEmptyDOMElement();
+    expect(
+      screen.queryByRole('region', { name: /Hourly forecast/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows an error when geocoding finds nothing', async () => {

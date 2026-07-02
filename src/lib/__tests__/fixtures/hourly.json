@@ -185,7 +185,7 @@
                 "number": 10,
                 "name": "",
                 "startTime": "2026-06-21T23:00:00-04:00",
-                "endTime": "2026-06-21T00:00:00-04:00",
+                "endTime": "2026-06-22T00:00:00-04:00",
                 "isDaytime": false,
                 "temperature": 71,
                 "temperatureUnit": "F",
@@ -254,7 +254,7 @@
                 "windSpeed": "9 mph",
                 "windDirection": "W",
                 "icon": "https://api.weather.gov/icons/land/night/skc?size=small",
-                "shortForecast": "Sunny",
+                "shortForecast": "Clear",
                 "detailedForecast": ""
             },
             {
@@ -273,7 +273,7 @@
                 "windSpeed": "9 mph",
                 "windDirection": "W",
                 "icon": "https://api.weather.gov/icons/land/night/skc?size=small",
-                "shortForecast": "Sunny",
+                "shortForecast": "Clear",
                 "detailedForecast": ""
             },
             {
@@ -292,7 +292,7 @@
                 "windSpeed": "9 mph",
                 "windDirection": "W",
                 "icon": "https://api.weather.gov/icons/land/night/skc?size=small",
-                "shortForecast": "Sunny",
+                "shortForecast": "Clear",
                 "detailedForecast": ""
             },
             {
@@ -311,7 +311,7 @@
                 "windSpeed": "9 mph",
                 "windDirection": "W",
                 "icon": "https://api.weather.gov/icons/land/night/skc?size=small",
-                "shortForecast": "Sunny",
+                "shortForecast": "Clear",
                 "detailedForecast": ""
             }
         ]

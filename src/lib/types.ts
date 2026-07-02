@@ -153,6 +153,8 @@ export interface HourlyPeriod {
   number: number;
   /** ISO 8601 start time of this hour, carrying the location's UTC offset. */
   startTime: string;
+  /** ISO 8601 end time of this hour; used to drop hours that have elapsed. */
+  endTime: string;
   isDaytime: boolean;
   /** Temperature in degrees Fahrenheit (normalized). */
   temperatureF: number;

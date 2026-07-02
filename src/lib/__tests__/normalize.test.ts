@@ -103,6 +103,7 @@ describe('normalizeHourly', () => {
     const first = hours[0];
     expect(first.number).toBe(1);
     expect(first.startTime).toBe('2026-06-21T14:00:00-04:00');
+    expect(first.endTime).toBe('2026-06-21T15:00:00-04:00');
     expect(first.temperatureF).toBe(79);
     expect(first.isDaytime).toBe(true);
     expect(first.precipPercent).toBe(23);

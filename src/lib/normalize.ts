@@ -113,6 +113,7 @@ export function normalizeHourly(res: NwsForecastResponse): HourlyPeriod[] {
   return periods.map((period) => ({
     number: period.number,
     startTime: period.startTime,
+    endTime: period.endTime,
     isDaytime: period.isDaytime,
     temperatureF:
       period.temperatureUnit === 'C'

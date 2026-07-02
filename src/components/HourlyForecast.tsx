@@ -15,7 +15,13 @@ export function HourlyForecast({ periods, timeZone, hours = 12 }: Props) {
 
   if (periods.length === 0) return null;
 
-  const upcoming = periods.slice(0, hours);
+  // Drop hours that have already elapsed so an expand long after page load
+  // still shows genuinely upcoming hours rather than a stale window. Evaluated
+  // on each render (e.g. when the toggle is clicked), so it stays current.
+  const now = Date.now();
+  const upcoming = periods
+    .filter((h) => Date.parse(h.endTime) > now)
+    .slice(0, hours);
 
   return (
     <section className="card" aria-label="Hourly forecast">
