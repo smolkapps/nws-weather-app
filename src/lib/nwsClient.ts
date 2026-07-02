@@ -47,6 +47,8 @@ const DEFAULT_HEADERS: Record<string, string> = {
 export interface WeatherBundle {
   location: Location;
   forecast: ForecastPeriod[];
+  /** Hour-by-hour forecast periods (best-effort; empty if unavailable). */
+  hourly: ForecastPeriod[];
   current: CurrentConditions | null;
   alerts: WeatherAlert[];
 }
@@ -87,6 +89,16 @@ export async function fetchForecast(
   return normalizeForecast(data);
 }
 
+export async function fetchHourlyForecast(
+  loc: Location,
+  fetchImpl: FetchLike = fetch,
+): Promise<ForecastPeriod[]> {
+  // The hourly endpoint returns the same period shape as the daily forecast,
+  // so the same normalizer applies.
+  const data = await getJson<NwsForecastResponse>(loc.hourlyUrl, fetchImpl);
+  return normalizeForecast(data);
+}
+
 export async function fetchCurrentConditions(
   loc: Location,
   fetchImpl: FetchLike = fetch,
@@ -123,11 +135,12 @@ export async function fetchWeatherBundle(
 ): Promise<WeatherBundle> {
   const location = await fetchLocation(lat, lon, fetchImpl);
 
-  const [forecast, current, alerts] = await Promise.all([
+  const [forecast, hourly, current, alerts] = await Promise.all([
     fetchForecast(location, fetchImpl),
+    fetchHourlyForecast(location, fetchImpl).catch(() => [] as ForecastPeriod[]),
     fetchCurrentConditions(location, fetchImpl).catch(() => null),
     fetchAlerts(lat, lon, fetchImpl).catch(() => [] as WeatherAlert[]),
   ]);
 
-  return { location, forecast, current, alerts };
+  return { location, forecast, hourly, current, alerts };
 }

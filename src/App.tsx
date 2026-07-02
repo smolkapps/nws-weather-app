@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SearchBar } from './components/SearchBar';
 import { CurrentConditionsCard } from './components/CurrentConditionsCard';
 import { ForecastList } from './components/ForecastList';
+import { HourlyForecast } from './components/HourlyForecast';
 import { AlertsList } from './components/AlertsList';
 import { KalshiTempCard } from './components/KalshiTempCard';
 import { geocode } from './lib/geocode';
@@ -78,6 +79,10 @@ export function App() {
             current={bundle.current}
           />
           {market && <KalshiTempCard market={market} forecastHighF={high} />}
+          <HourlyForecast
+            periods={bundle.hourly}
+            timeZone={bundle.location.timeZone}
+          />
           <ForecastList periods={bundle.forecast} />
         </>
       )}

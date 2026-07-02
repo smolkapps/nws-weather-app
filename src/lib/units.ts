@@ -62,3 +62,18 @@ export function formatPercent(p: number | null | undefined): string {
   if (p === null || p === undefined || Number.isNaN(p)) return '--';
   return `${Math.round(p)}%`;
 }
+
+/**
+ * Format an ISO timestamp as a short hour label in a given IANA time zone,
+ * e.g. "3 PM". Falls back to the raw string if the timestamp can't be parsed.
+ */
+export function formatHourLabel(iso: string, timeZone: string): string {
+  try {
+    return new Date(iso).toLocaleTimeString('en-US', {
+      timeZone,
+      hour: 'numeric',
+    });
+  } catch {
+    return iso;
+  }
+}

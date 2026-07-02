@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   celsiusToFahrenheit,
   degreesToCardinal,
+  formatHourLabel,
   formatPercent,
   formatTempF,
   kmhToMph,
@@ -104,5 +105,22 @@ describe('formatters', () => {
   it('formats percent', () => {
     expect(formatPercent(30)).toBe('30%');
     expect(formatPercent(null)).toBe('--');
+  });
+
+  it('formats an hour label in the given time zone', () => {
+    // 15:00 at -04:00 is 3 PM Eastern.
+    expect(
+      formatHourLabel('2026-06-21T15:00:00-04:00', 'America/New_York'),
+    ).toBe('3 PM');
+    // Same instant is 12 PM Pacific.
+    expect(
+      formatHourLabel('2026-06-21T15:00:00-04:00', 'America/Los_Angeles'),
+    ).toBe('12 PM');
+  });
+
+  it('falls back to the raw string on an unparseable timestamp', () => {
+    expect(formatHourLabel('not-a-date', 'America/New_York')).toBe(
+      'Invalid Date',
+    );
   });
 });

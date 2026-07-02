@@ -28,6 +28,8 @@ prices and is not affiliated with Kalshi.
 - Search by city, `City, ST`, or raw `lat,lon` (coordinates skip geocoding).
 - Current conditions: temp, humidity, dew point, wind (speed + cardinal),
   heat index / wind chill when present.
+- Hourly forecast strip for the next 12 hours (temperature, short forecast,
+  precipitation chance), from the NWS `forecastHourly` endpoint.
 - Multi-day forecast with precipitation probability and short forecast text.
 - Active NWS alerts, sorted by severity (Extreme → Severe → … ) then onset.
 - Kalshi temperature-market reference + bucket ladder for supported cities.
@@ -43,11 +45,11 @@ src/
     units.ts        Pure unit conversions (C→F, km/h→mph, deg→cardinal, …)
     normalize.ts    Raw NWS JSON → normalized domain types; alert sorting
     geocode.ts      lat,lon parsing + U.S. Census geocoder
-    nwsClient.ts    Orchestrates the /points → forecast/stations/obs/alerts flow
+    nwsClient.ts    Orchestrates the /points → forecast/hourly/stations/obs/alerts flow
     forecast.ts     "today's high" selection for the Kalshi anchor
     kalshi.ts       City → Kalshi market map + temperature-bucket builder
     __tests__/      Unit tests, including tests against SAVED NWS fixtures
-  components/       React UI (SearchBar, CurrentConditions, Forecast, Alerts, Kalshi)
+  components/       React UI (SearchBar, CurrentConditions, Hourly, Forecast, Alerts, Kalshi)
   App.tsx           State wiring
 ```
 

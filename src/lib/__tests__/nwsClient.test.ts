@@ -8,6 +8,7 @@ import type { FetchLike } from '../nwsClient';
 
 import pointFixture from './fixtures/point.json';
 import forecastFixture from './fixtures/forecast.json';
+import hourlyFixture from './fixtures/forecastHourly.json';
 import observationFixture from './fixtures/observation.json';
 import stationsFixture from './fixtures/stations.json';
 import alertsFixture from './fixtures/alerts.json';
@@ -26,6 +27,7 @@ function makeRouter(overrides: Record<string, () => Promise<Response>> = {}): Fe
       if (url.includes(needle)) return handler();
     }
     if (url.includes('/points/')) return json(pointFixture);
+    if (url.includes('/forecast/hourly')) return json(hourlyFixture);
     if (url.includes('/forecast')) return json(forecastFixture);
     if (url.includes('/stations') && !url.includes('observations'))
       return json(stationsFixture);
@@ -59,6 +61,10 @@ describe('fetchWeatherBundle', () => {
     expect(bundle.forecast.length).toBe(14);
     expect(bundle.forecast[0].temperatureF).toBe(79);
 
+    expect(bundle.hourly.length).toBe(24);
+    expect(bundle.hourly[0].temperatureF).toBe(79);
+    expect(bundle.hourly[0].precipPercent).toBe(23);
+
     expect(bundle.current).not.toBeNull();
     expect(bundle.current?.temperatureF).toBe(80);
     expect(bundle.current?.windCardinal).toBe('WSW');
@@ -76,6 +82,16 @@ describe('fetchWeatherBundle', () => {
     expect(bundle.forecast.length).toBe(14);
     expect(bundle.current).toBeNull(); // degraded gracefully
     expect(bundle.alerts.length).toBe(3); // alerts still present
+  });
+
+  it('still returns forecast when the hourly forecast fails (best-effort)', async () => {
+    const fetchImpl = makeRouter({
+      '/forecast/hourly': async () =>
+        new Response('boom', { status: 500, statusText: 'Error' }),
+    });
+    const bundle = await fetchWeatherBundle(40.7128, -74.006, fetchImpl);
+    expect(bundle.forecast.length).toBe(14);
+    expect(bundle.hourly).toEqual([]); // degraded gracefully
   });
 
   it('still returns forecast when alerts fail (best-effort)', async () => {

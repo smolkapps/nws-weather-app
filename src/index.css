@@ -208,6 +208,48 @@ a {
   font-size: 0.8rem;
 }
 
+.hourly-row {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+}
+
+.hour {
+  flex: 0 0 auto;
+  min-width: 84px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.5rem;
+  text-align: center;
+}
+
+.hour-time {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.hour-temp {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0.2rem 0;
+}
+
+.hour-desc {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.hour-pop {
+  color: var(--accent);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+}
+
 .alert {
   border-left: 4px solid var(--sev-unknown);
   background: var(--surface-2);

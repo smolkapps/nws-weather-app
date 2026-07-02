@@ -4,6 +4,7 @@ import { App } from '../App';
 
 import pointFixture from '../lib/__tests__/fixtures/point.json';
 import forecastFixture from '../lib/__tests__/fixtures/forecast.json';
+import hourlyFixture from '../lib/__tests__/fixtures/forecastHourly.json';
 import observationFixture from '../lib/__tests__/fixtures/observation.json';
 import stationsFixture from '../lib/__tests__/fixtures/stations.json';
 import alertsFixture from '../lib/__tests__/fixtures/alerts.json';
@@ -36,6 +37,7 @@ function installFetchMock() {
       });
     }
     if (url.includes('/points/')) return json(nycPoint);
+    if (url.includes('/forecast/hourly')) return json(hourlyFixture);
     if (url.includes('/forecast')) return json(forecastFixture);
     if (url.includes('/stations') && !url.includes('observations'))
       return json(stationsFixture);
@@ -81,6 +83,16 @@ describe('<App /> end to end (mocked fetch)', () => {
       screen.getByRole('region', { name: /Multi-day forecast/i }),
     ).toBeInTheDocument();
     expect(screen.getByText('This Afternoon')).toBeInTheDocument();
+
+    // Hourly forecast strip renders upcoming hours (fixture has 24; we show 12).
+    const hourlyRegion = screen.getByRole('region', {
+      name: /Hourly forecast/i,
+    });
+    expect(
+      within(hourlyRegion).getByText(/Next 12 hours/i),
+    ).toBeInTheDocument();
+    // First hourly period's temperature from the fixture (79°F).
+    expect(within(hourlyRegion).getAllByText('79°F').length).toBeGreaterThan(0);
 
     // Alerts surfaced (fixture has 3).
     expect(screen.getByText(/Active alerts \(3\)/i)).toBeInTheDocument();
