@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fireEvent,
   render,
@@ -55,7 +55,17 @@ function installFetchMock() {
   return impl;
 }
 
+// Pin the clock just before the hourly fixture's first hour (14:00 -04:00) so
+// all 16 fixture hours are still upcoming. This keeps the elapsed-hour filter
+// in HourlyForecast deterministic regardless of when the suite runs. Only Date
+// is faked, so real timers still drive React/testing-library waits.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-06-21T17:30:00Z')); // 13:30 -04:00
+});
+
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -126,6 +136,60 @@ describe('<App /> end to end (mocked fetch)', () => {
     expect(within(region).getByRole('list')).toBeInTheDocument();
     // 14:00 -04:00 in New York renders as "2 PM".
     expect(within(region).getByText('2 PM')).toBeInTheDocument();
+  });
+
+  it('caps the expanded hourly strip at 12 hours (fixture has 16)', async () => {
+    installFetchMock();
+    render(<App />);
+
+    const region = await screen.findByRole('region', {
+      name: /Hourly forecast/i,
+    });
+    fireEvent.click(
+      within(region).getByRole('button', { name: /Hourly forecast/i }),
+    );
+
+    // All 16 fixture hours are still upcoming at the pinned clock, so the cap —
+    // not the elapsed-hour filter — is what limits the strip to 12 items.
+    expect(within(region).getAllByRole('listitem')).toHaveLength(12);
+  });
+
+  it('renders no hourly card when there are no hourly periods', async () => {
+    // Hourly endpoint fails, so the bundle degrades to hourly: [] and the
+    // card renders nothing at all.
+    const impl = vi.fn(async (url: string) => {
+      if (url.includes('geocoding.geo.census.gov')) {
+        return json({
+          result: {
+            addressMatches: [
+              {
+                matchedAddress: 'NEW YORK, NY',
+                coordinates: { x: -74.006, y: 40.7128 },
+              },
+            ],
+          },
+        });
+      }
+      if (url.includes('/points/')) return json(nycPoint);
+      if (url.includes('/forecast/hourly'))
+        return new Response('boom', { status: 500, statusText: 'Error' });
+      if (url.includes('/forecast')) return json(forecastFixture);
+      if (url.includes('/stations') && !url.includes('observations'))
+        return json(stationsFixture);
+      if (url.includes('/observations/latest')) return json(observationFixture);
+      if (url.includes('/alerts/active')) return json(alertsFixture);
+      throw new Error(`unexpected url: ${url}`);
+    });
+    vi.stubGlobal('fetch', impl);
+
+    render(<App />);
+
+    // Wait for the page to finish loading (forecast section present)...
+    await screen.findByRole('region', { name: /Multi-day forecast/i });
+    // ...then assert the hourly card is absent entirely.
+    expect(
+      screen.queryByRole('region', { name: /Hourly forecast/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows an error when geocoding finds nothing', async () => {
