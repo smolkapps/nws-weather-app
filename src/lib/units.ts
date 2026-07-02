@@ -62,3 +62,19 @@ export function formatPercent(p: number | null | undefined): string {
   if (p === null || p === undefined || Number.isNaN(p)) return '--';
   return `${Math.round(p)}%`;
 }
+
+/**
+ * Format an ISO timestamp as a short hour label in the given IANA time zone,
+ * e.g. "3 PM". The NWS hourly startTime carries the location's UTC offset, so
+ * we render it in the location's own zone rather than the viewer's. Falls back
+ * to the raw string if the input can't be parsed.
+ */
+export function formatHourLabel(iso: string, timeZone?: string): string {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return iso;
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: true,
+    timeZone: timeZone || undefined,
+  }).format(new Date(t));
+}

@@ -3,6 +3,7 @@ import {
   firstStation,
   normalizeAlerts,
   normalizeForecast,
+  normalizeHourly,
   normalizeObservation,
   normalizePoint,
 } from '../normalize';
@@ -16,6 +17,7 @@ import type {
 
 import pointFixture from './fixtures/point.json';
 import forecastFixture from './fixtures/forecast.json';
+import hourlyFixture from './fixtures/hourly.json';
 import observationFixture from './fixtures/observation.json';
 import stationsFixture from './fixtures/stations.json';
 import alertsFixture from './fixtures/alerts.json';
@@ -88,6 +90,55 @@ describe('normalizeForecast', () => {
     expect(
       normalizeForecast({ properties: { periods: [] } }),
     ).toEqual([]);
+  });
+});
+
+describe('normalizeHourly', () => {
+  it('maps every hour from a real hourly response', () => {
+    const hours = normalizeHourly(
+      hourlyFixture as unknown as NwsForecastResponse,
+    );
+    expect(hours.length).toBe(16);
+
+    const first = hours[0];
+    expect(first.number).toBe(1);
+    expect(first.startTime).toBe('2026-06-21T14:00:00-04:00');
+    expect(first.temperatureF).toBe(79);
+    expect(first.isDaytime).toBe(true);
+    expect(first.precipPercent).toBe(23);
+    expect(first.shortForecast).toBe('Slight Chance Rain Showers');
+  });
+
+  it('converts Celsius hourly temps defensively', () => {
+    const synthetic: NwsForecastResponse = {
+      properties: {
+        periods: [
+          {
+            number: 1,
+            name: '',
+            startTime: '2026-06-21T14:00:00-04:00',
+            endTime: '',
+            isDaytime: true,
+            temperature: 20,
+            temperatureUnit: 'C',
+            temperatureTrend: null,
+            probabilityOfPrecipitation: { unitCode: 'percent', value: 10 },
+            windSpeed: '5 mph',
+            windDirection: 'N',
+            icon: '',
+            shortForecast: 'Clear',
+            detailedForecast: '',
+          },
+        ],
+      },
+    };
+    const hours = normalizeHourly(synthetic);
+    expect(hours[0].temperatureF).toBe(68); // 20C -> 68F
+    expect(hours[0].precipPercent).toBe(10);
+  });
+
+  it('handles an empty/missing periods array', () => {
+    expect(normalizeHourly({ properties: { periods: [] } })).toEqual([]);
   });
 });
 

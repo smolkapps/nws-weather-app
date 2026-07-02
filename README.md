@@ -29,10 +29,12 @@ prices and is not affiliated with Kalshi.
 - Current conditions: temp, humidity, dew point, wind (speed + cardinal),
   heat index / wind chill when present.
 - Multi-day forecast with precipitation probability and short forecast text.
+- Collapsible hour-by-hour forecast strip (next 12 hours), rendered in the
+  location's own time zone.
 - Active NWS alerts, sorted by severity (Extreme → Severe → … ) then onset.
 - Kalshi temperature-market reference + bucket ladder for supported cities.
-- Graceful degradation: a station outage or alerts hiccup never blanks the page;
-  the forecast still renders.
+- Graceful degradation: a station, hourly, or alerts hiccup never blanks the
+  page; the multi-day forecast still renders.
 
 ## Architecture
 

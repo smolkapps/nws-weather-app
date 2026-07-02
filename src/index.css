@@ -208,6 +208,74 @@ a {
   font-size: 0.8rem;
 }
 
+.hourly-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.hourly-toggle .section-title {
+  margin: 0;
+}
+
+.hourly-chevron {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.hourly-strip {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.9rem 0 0.2rem;
+  scrollbar-width: thin;
+}
+
+.hour {
+  flex: 0 0 auto;
+  width: 76px;
+  display: grid;
+  gap: 0.3rem;
+  justify-items: center;
+  text-align: center;
+  padding: 0.6rem 0.4rem;
+  background: var(--surface-2);
+  border-radius: 10px;
+}
+
+.hour-time {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.hour-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+}
+
+.hour-temp {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.hour-pop {
+  color: var(--accent);
+  font-size: 0.78rem;
+}
+
+.hour-desc {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
 .alert {
   border-left: 4px solid var(--sev-unknown);
   background: var(--surface-2);

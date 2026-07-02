@@ -149,6 +149,21 @@ export interface ForecastPeriod {
   detailedForecast: string;
 }
 
+export interface HourlyPeriod {
+  number: number;
+  /** ISO 8601 start time of this hour, carrying the location's UTC offset. */
+  startTime: string;
+  isDaytime: boolean;
+  /** Temperature in degrees Fahrenheit (normalized). */
+  temperatureF: number;
+  /** Probability of precipitation as an integer percent 0..100, or null. */
+  precipPercent: number | null;
+  windSpeed: string;
+  windDirection: string;
+  icon: string;
+  shortForecast: string;
+}
+
 export interface CurrentConditions {
   stationId: string;
   stationName: string;

@@ -5,6 +5,7 @@ import type {
   AlertSeverity,
   CurrentConditions,
   ForecastPeriod,
+  HourlyPeriod,
   Location,
   NwsAlertsResponse,
   NwsForecastResponse,
@@ -98,6 +99,30 @@ export function normalizeForecast(res: NwsForecastResponse): ForecastPeriod[] {
     icon: period.icon,
     shortForecast: period.shortForecast,
     detailedForecast: period.detailedForecast,
+  }));
+}
+
+/**
+ * Normalize the hourly forecast endpoint. Same GeoJSON shape as the multi-day
+ * forecast, but each period is a single hour. We keep only the fields the
+ * hourly strip renders and, like the daily forecast, defensively convert
+ * Celsius should the API ever report it.
+ */
+export function normalizeHourly(res: NwsForecastResponse): HourlyPeriod[] {
+  const periods = res.properties?.periods ?? [];
+  return periods.map((period) => ({
+    number: period.number,
+    startTime: period.startTime,
+    isDaytime: period.isDaytime,
+    temperatureF:
+      period.temperatureUnit === 'C'
+        ? celsiusToFahrenheit(period.temperature) ?? period.temperature
+        : period.temperature,
+    precipPercent: precipFromPeriod(period.probabilityOfPrecipitation),
+    windSpeed: period.windSpeed,
+    windDirection: period.windDirection,
+    icon: period.icon,
+    shortForecast: period.shortForecast,
   }));
 }
 

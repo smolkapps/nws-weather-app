@@ -1,9 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { App } from '../App';
 
 import pointFixture from '../lib/__tests__/fixtures/point.json';
 import forecastFixture from '../lib/__tests__/fixtures/forecast.json';
+import hourlyFixture from '../lib/__tests__/fixtures/hourly.json';
 import observationFixture from '../lib/__tests__/fixtures/observation.json';
 import stationsFixture from '../lib/__tests__/fixtures/stations.json';
 import alertsFixture from '../lib/__tests__/fixtures/alerts.json';
@@ -36,6 +43,7 @@ function installFetchMock() {
       });
     }
     if (url.includes('/points/')) return json(nycPoint);
+    if (url.includes('/forecast/hourly')) return json(hourlyFixture);
     if (url.includes('/forecast')) return json(forecastFixture);
     if (url.includes('/stations') && !url.includes('observations'))
       return json(stationsFixture);
@@ -97,6 +105,27 @@ describe('<App /> end to end (mocked fetch)', () => {
         name: /View the New York temperature market on Kalshi/i,
       }),
     ).toBeInTheDocument();
+  });
+
+  it('reveals the hourly strip when the toggle is expanded', async () => {
+    installFetchMock();
+    render(<App />);
+
+    const region = await screen.findByRole('region', {
+      name: /Hourly forecast/i,
+    });
+
+    // Collapsed by default: the toggle exists but the hours are hidden.
+    const toggle = within(region).getByRole('button', { name: /Hourly forecast/i });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(within(region).queryByRole('list')).not.toBeInTheDocument();
+
+    // Expand it: the hour strip and the first hour's local label appear.
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(within(region).getByRole('list')).toBeInTheDocument();
+    // 14:00 -04:00 in New York renders as "2 PM".
+    expect(within(region).getByText('2 PM')).toBeInTheDocument();
   });
 
   it('shows an error when geocoding finds nothing', async () => {

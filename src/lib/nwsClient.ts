@@ -1,6 +1,7 @@
 // NWS API client. Orchestrates the multi-step NWS flow:
 //   /points/{lat},{lon}  ->  forecast + hourly + stations URLs
 //   GET forecastUrl       ->  7-day periods
+//   GET hourlyUrl         ->  hour-by-hour periods
 //   GET stationsUrl       ->  first station id
 //   GET station latest obs->  current conditions
 //   /alerts/active?point  ->  active alerts
@@ -12,12 +13,14 @@ import {
   firstStation,
   normalizeAlerts,
   normalizeForecast,
+  normalizeHourly,
   normalizeObservation,
   normalizePoint,
 } from './normalize';
 import type {
   CurrentConditions,
   ForecastPeriod,
+  HourlyPeriod,
   Location,
   NwsAlertsResponse,
   NwsForecastResponse,
@@ -47,6 +50,7 @@ const DEFAULT_HEADERS: Record<string, string> = {
 export interface WeatherBundle {
   location: Location;
   forecast: ForecastPeriod[];
+  hourly: HourlyPeriod[];
   current: CurrentConditions | null;
   alerts: WeatherAlert[];
 }
@@ -87,6 +91,14 @@ export async function fetchForecast(
   return normalizeForecast(data);
 }
 
+export async function fetchHourly(
+  loc: Location,
+  fetchImpl: FetchLike = fetch,
+): Promise<HourlyPeriod[]> {
+  const data = await getJson<NwsForecastResponse>(loc.hourlyUrl, fetchImpl);
+  return normalizeHourly(data);
+}
+
 export async function fetchCurrentConditions(
   loc: Location,
   fetchImpl: FetchLike = fetch,
@@ -123,11 +135,12 @@ export async function fetchWeatherBundle(
 ): Promise<WeatherBundle> {
   const location = await fetchLocation(lat, lon, fetchImpl);
 
-  const [forecast, current, alerts] = await Promise.all([
+  const [forecast, hourly, current, alerts] = await Promise.all([
     fetchForecast(location, fetchImpl),
+    fetchHourly(location, fetchImpl).catch(() => [] as HourlyPeriod[]),
     fetchCurrentConditions(location, fetchImpl).catch(() => null),
     fetchAlerts(lat, lon, fetchImpl).catch(() => [] as WeatherAlert[]),
   ]);
 
-  return { location, forecast, current, alerts };
+  return { location, forecast, hourly, current, alerts };
 }
