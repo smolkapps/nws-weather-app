@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   celsiusToFahrenheit,
   degreesToCardinal,
+  formatHourLabel,
   formatPercent,
   formatTempF,
   kmhToMph,
@@ -104,5 +105,21 @@ describe('formatters', () => {
   it('formats percent', () => {
     expect(formatPercent(30)).toBe('30%');
     expect(formatPercent(null)).toBe('--');
+  });
+
+  it('formats an hour label in the location time zone', () => {
+    // 14:00 with a -04:00 offset is 18:00 UTC; rendered in New York that is
+    // 2 PM regardless of the machine's local zone.
+    expect(
+      formatHourLabel('2026-06-21T14:00:00-04:00', 'America/New_York'),
+    ).toBe('2 PM');
+    // A West Coast zone shifts the same instant back to 11 AM.
+    expect(
+      formatHourLabel('2026-06-21T14:00:00-04:00', 'America/Los_Angeles'),
+    ).toBe('11 AM');
+  });
+
+  it('returns the raw string for an unparseable timestamp', () => {
+    expect(formatHourLabel('not-a-date', 'America/New_York')).toBe('not-a-date');
   });
 });

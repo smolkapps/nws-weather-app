@@ -3,6 +3,7 @@ import {
   firstStation,
   normalizeAlerts,
   normalizeForecast,
+  normalizeHourly,
   normalizeObservation,
   normalizePoint,
 } from '../normalize';
@@ -16,6 +17,7 @@ import type {
 
 import pointFixture from './fixtures/point.json';
 import forecastFixture from './fixtures/forecast.json';
+import hourlyFixture from './fixtures/hourly.json';
 import observationFixture from './fixtures/observation.json';
 import stationsFixture from './fixtures/stations.json';
 import alertsFixture from './fixtures/alerts.json';
@@ -88,6 +90,127 @@ describe('normalizeForecast', () => {
     expect(
       normalizeForecast({ properties: { periods: [] } }),
     ).toEqual([]);
+  });
+});
+
+describe('normalizeHourly', () => {
+  // The fixture's first hour starts at 2026-06-21T14:00-04:00. Pin "now" to
+  // that instant so nothing has elapsed yet and the full window is returned;
+  // this keeps the mapping assertions deterministic instead of depending on
+  // the machine's wall clock (which is what silently made the pre-fix version
+  // "pass").
+  const FIXTURE_FIRST_HOUR = new Date('2026-06-21T14:00:00-04:00');
+
+  it('maps every hour from a real hourly response', () => {
+    const hours = normalizeHourly(
+      hourlyFixture as unknown as NwsForecastResponse,
+      FIXTURE_FIRST_HOUR,
+    );
+    expect(hours.length).toBe(16);
+
+    const first = hours[0];
+    expect(first.number).toBe(1);
+    expect(first.startTime).toBe('2026-06-21T14:00:00-04:00');
+    expect(first.temperatureF).toBe(79);
+    expect(first.isDaytime).toBe(true);
+    expect(first.precipPercent).toBe(23);
+    expect(first.shortForecast).toBe('Slight Chance Rain Showers');
+  });
+
+  // --- Regression: the hourly strip must start at the CURRENT hour ---
+  // Pre-fix, normalizeHourly returned every period in the response verbatim,
+  // so the strip led with already-elapsed hours (e.g. 2 PM when it was really
+  // 5:30 PM). These pin a reference "now" partway through the fixture window
+  // and assert the past is dropped and the in-progress hour comes first.
+  it('drops fully-past hours and starts at the in-progress hour', () => {
+    // 17:30 local (-04:00): hours 14/15/16 are done; the 17:00 hour is in
+    // progress and must be the first one shown.
+    const now = new Date('2026-06-21T17:30:00-04:00');
+    const hours = normalizeHourly(
+      hourlyFixture as unknown as NwsForecastResponse,
+      now,
+    );
+
+    // 16 total in the fixture, 3 fully past (14,15,16) -> 13 remain.
+    expect(hours.length).toBe(13);
+    // First shown hour is the current/in-progress one, not the response head.
+    expect(hours[0].number).toBe(4);
+    expect(hours[0].startTime).toBe('2026-06-21T17:00:00-04:00');
+    // No returned hour is fully in the past relative to "now".
+    for (const h of hours) {
+      expect(Date.parse(h.startTime)).toBeGreaterThan(
+        now.getTime() - 3600_000,
+      );
+    }
+    // The last fixture hour is still present (horizon is a display concern).
+    expect(hours[hours.length - 1].startTime).toBe('2026-06-22T05:00:00-04:00');
+  });
+
+  it('keeps the exact-boundary hour as the current hour', () => {
+    // Exactly on the top of the 16:00 hour: that hour is current, 14:00 and
+    // 15:00 are past.
+    const now = new Date('2026-06-21T16:00:00-04:00');
+    const hours = normalizeHourly(
+      hourlyFixture as unknown as NwsForecastResponse,
+      now,
+    );
+    expect(hours[0].startTime).toBe('2026-06-21T16:00:00-04:00');
+    expect(hours[0].number).toBe(3);
+  });
+
+  it('returns the whole window when now precedes the first hour', () => {
+    const now = new Date('2026-06-21T09:00:00-04:00'); // before 14:00
+    const hours = normalizeHourly(
+      hourlyFixture as unknown as NwsForecastResponse,
+      now,
+    );
+    expect(hours.length).toBe(16);
+    expect(hours[0].startTime).toBe('2026-06-21T14:00:00-04:00');
+  });
+
+  it('returns only the last hour once now passes the final start', () => {
+    const now = new Date('2026-06-22T04:30:00-04:00'); // inside the 04:00 hour
+    const hours = normalizeHourly(
+      hourlyFixture as unknown as NwsForecastResponse,
+      now,
+    );
+    // 04:00 is in progress, 05:00 is future.
+    expect(hours.map((h) => h.startTime)).toEqual([
+      '2026-06-22T04:00:00-04:00',
+      '2026-06-22T05:00:00-04:00',
+    ]);
+  });
+
+  it('converts Celsius hourly temps defensively', () => {
+    const synthetic: NwsForecastResponse = {
+      properties: {
+        periods: [
+          {
+            number: 1,
+            name: '',
+            startTime: '2026-06-21T14:00:00-04:00',
+            endTime: '',
+            isDaytime: true,
+            temperature: 20,
+            temperatureUnit: 'C',
+            temperatureTrend: null,
+            probabilityOfPrecipitation: { unitCode: 'percent', value: 10 },
+            windSpeed: '5 mph',
+            windDirection: 'N',
+            icon: '',
+            shortForecast: 'Clear',
+            detailedForecast: '',
+          },
+        ],
+      },
+    };
+    const hours = normalizeHourly(synthetic, FIXTURE_FIRST_HOUR);
+    expect(hours[0].temperatureF).toBe(68); // 20C -> 68F
+    expect(hours[0].precipPercent).toBe(10);
+  });
+
+  it('handles an empty/missing periods array', () => {
+    expect(normalizeHourly({ properties: { periods: [] } })).toEqual([]);
   });
 });
 

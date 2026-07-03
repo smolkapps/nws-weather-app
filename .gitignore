@@ -1,9 +1,11 @@
 # dependencies
 node_modules/
+package-lock.json
 
 # build output
 dist/
 dist-ssr/
+*.tsbuildinfo
 
 # vite/vitest cache + coverage
 .vite/

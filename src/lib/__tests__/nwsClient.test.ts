@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildAlertsUrl,
   buildPointUrl,
@@ -8,6 +8,7 @@ import type { FetchLike } from '../nwsClient';
 
 import pointFixture from './fixtures/point.json';
 import forecastFixture from './fixtures/forecast.json';
+import hourlyFixture from './fixtures/hourly.json';
 import observationFixture from './fixtures/observation.json';
 import stationsFixture from './fixtures/stations.json';
 import alertsFixture from './fixtures/alerts.json';
@@ -26,6 +27,7 @@ function makeRouter(overrides: Record<string, () => Promise<Response>> = {}): Fe
       if (url.includes(needle)) return handler();
     }
     if (url.includes('/points/')) return json(pointFixture);
+    if (url.includes('/forecast/hourly')) return json(hourlyFixture);
     if (url.includes('/forecast')) return json(forecastFixture);
     if (url.includes('/stations') && !url.includes('observations'))
       return json(stationsFixture);
@@ -50,7 +52,18 @@ describe('URL builders', () => {
 });
 
 describe('fetchWeatherBundle', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('assembles location + forecast + current + alerts from the NWS flow', async () => {
+    // The hourly fixture begins at 2026-06-21T14:00-04:00 and the bundle now
+    // trims already-elapsed hours, so pin "now" to that first hour to keep the
+    // assertion on the full 16-hour window deterministic (independent of the
+    // machine's real clock). Fake only Date.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-06-21T14:00:00-04:00'));
+
     const fetchImpl = makeRouter();
     const bundle = await fetchWeatherBundle(40.7128, -74.006, fetchImpl);
 
@@ -58,6 +71,10 @@ describe('fetchWeatherBundle', () => {
     expect(bundle.location.city).toBe('Hoboken');
     expect(bundle.forecast.length).toBe(14);
     expect(bundle.forecast[0].temperatureF).toBe(79);
+
+    expect(bundle.hourly.length).toBe(16);
+    expect(bundle.hourly[0].temperatureF).toBe(79);
+    expect(bundle.hourly[0].startTime).toBe('2026-06-21T14:00:00-04:00');
 
     expect(bundle.current).not.toBeNull();
     expect(bundle.current?.temperatureF).toBe(80);
@@ -86,6 +103,16 @@ describe('fetchWeatherBundle', () => {
     const bundle = await fetchWeatherBundle(40.7128, -74.006, fetchImpl);
     expect(bundle.forecast.length).toBe(14);
     expect(bundle.alerts).toEqual([]); // degraded gracefully
+  });
+
+  it('still returns forecast when the hourly forecast fails (best-effort)', async () => {
+    const fetchImpl = makeRouter({
+      '/forecast/hourly': async () =>
+        new Response('boom', { status: 500, statusText: 'Error' }),
+    });
+    const bundle = await fetchWeatherBundle(40.7128, -74.006, fetchImpl);
+    expect(bundle.forecast.length).toBe(14);
+    expect(bundle.hourly).toEqual([]); // degraded gracefully
   });
 
   it('throws when the required points lookup fails', async () => {
