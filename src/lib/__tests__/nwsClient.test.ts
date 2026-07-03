@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildAlertsUrl,
   buildPointUrl,
@@ -52,7 +52,18 @@ describe('URL builders', () => {
 });
 
 describe('fetchWeatherBundle', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('assembles location + forecast + current + alerts from the NWS flow', async () => {
+    // The hourly fixture begins at 2026-06-21T14:00-04:00 and the bundle now
+    // trims already-elapsed hours, so pin "now" to that first hour to keep the
+    // assertion on the full 16-hour window deterministic (independent of the
+    // machine's real clock). Fake only Date.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-06-21T14:00:00-04:00'));
+
     const fetchImpl = makeRouter();
     const bundle = await fetchWeatherBundle(40.7128, -74.006, fetchImpl);
 

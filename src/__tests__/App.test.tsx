@@ -58,6 +58,7 @@ function installFetchMock() {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 
 describe('<App /> end to end (mocked fetch)', () => {
@@ -107,7 +108,17 @@ describe('<App /> end to end (mocked fetch)', () => {
     ).toBeInTheDocument();
   });
 
-  it('reveals the hourly strip when the toggle is expanded', async () => {
+  it('reveals the hourly strip starting at the current hour, past hours dropped', async () => {
+    // Pin "now" to 5:30 PM local (-04:00), partway through the fixture's
+    // window (which begins at 2 PM). Anchoring to a known "now" instead of the
+    // real wall clock is what makes this deterministic — and 5:30 PM (NOT the
+    // fixture's first hour) is what turns this into a real regression guard:
+    // the strip must START at the in-progress 5 PM hour and the elapsed
+    // 2/3/4 PM hours must be gone. The pre-fix code led with "2 PM" here, so
+    // this test fails on the bug. Fake only Date so waitFor/findBy timers run.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-06-21T17:30:00-04:00'));
+
     installFetchMock();
     render(<App />);
 
@@ -120,12 +131,21 @@ describe('<App /> end to end (mocked fetch)', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(within(region).queryByRole('list')).not.toBeInTheDocument();
 
-    // Expand it: the hour strip and the first hour's local label appear.
+    // Expand it: the hour strip appears and starts at the CURRENT hour.
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(within(region).getByRole('list')).toBeInTheDocument();
-    // 14:00 -04:00 in New York renders as "2 PM".
-    expect(within(region).getByText('2 PM')).toBeInTheDocument();
+
+    // The first rendered hour label is the in-progress 5 PM hour (17:00 -04:00
+    // in New York), not the response's first period.
+    const labels = within(region)
+      .getAllByRole('listitem')
+      .map((li) => li.querySelector('.hour-time')?.textContent);
+    expect(labels[0]).toBe('5 PM');
+    // Already-elapsed hours must not appear at all.
+    expect(within(region).queryByText('2 PM')).not.toBeInTheDocument();
+    expect(within(region).queryByText('3 PM')).not.toBeInTheDocument();
+    expect(within(region).queryByText('4 PM')).not.toBeInTheDocument();
   });
 
   it('shows an error when geocoding finds nothing', async () => {

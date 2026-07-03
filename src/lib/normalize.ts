@@ -107,10 +107,43 @@ export function normalizeForecast(res: NwsForecastResponse): ForecastPeriod[] {
  * forecast, but each period is a single hour. We keep only the fields the
  * hourly strip renders and, like the daily forecast, defensively convert
  * Celsius should the API ever report it.
+ *
+ * The NWS hourly response starts at the top of the *current* hour and runs
+ * ~156 hours out, so the raw array contains hours that have already elapsed.
+ * We anchor to `now` and drop fully-past hours, keeping the in-progress hour
+ * plus every future hour — so the strip always starts at the current/next
+ * hour rather than at whatever the response happened to begin with.
+ *
+ * `now` is injectable purely so tests can pin the clock; production callers
+ * use the real wall clock. The boundary is derived from each period's
+ * `startTime` only (the current hour is the latest period whose `startTime`
+ * is <= now), so a malformed/missing `endTime` can't cause an hour to be
+ * dropped. Each `startTime` carries its own UTC offset, so `Date.parse`
+ * yields a correct absolute instant regardless of the viewer's zone.
+ *
+ * Assumes the response periods are in ascending time order, which the NWS
+ * hourly feed guarantees (and which `normalizeForecast` already relies on).
  */
-export function normalizeHourly(res: NwsForecastResponse): HourlyPeriod[] {
+export function normalizeHourly(
+  res: NwsForecastResponse,
+  now: Date = new Date(),
+): HourlyPeriod[] {
   const periods = res.properties?.periods ?? [];
-  return periods.map((period) => ({
+  const nowMs = now.getTime();
+
+  // Index of the current (in-progress) hour: the last period that has already
+  // started. Everything before it is fully in the past; everything from it
+  // onward is current-or-future. -1 means every period is still in the future.
+  let currentIdx = -1;
+  for (let i = 0; i < periods.length; i += 1) {
+    const startMs = Date.parse(periods[i].startTime);
+    if (!Number.isNaN(startMs) && startMs <= nowMs) {
+      currentIdx = i;
+    }
+  }
+  const start = currentIdx < 0 ? 0 : currentIdx;
+
+  return periods.slice(start).map((period) => ({
     number: period.number,
     startTime: period.startTime,
     isDaytime: period.isDaytime,
