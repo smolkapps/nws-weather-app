@@ -37,7 +37,18 @@ export function HourlyForecast({ periods, timeZone, hours = 12 }: Props) {
                 {formatHourLabel(h.startTime, timeZone)}
               </div>
               {h.icon && (
-                <img className="hour-icon" src={h.icon} alt="" aria-hidden />
+                <img
+                  className="hour-icon"
+                  src={h.icon}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  onError={(e) => {
+                    // Icon CDN unreachable (e.g. offline sample mode): drop the
+                    // image instead of showing a broken-image glyph.
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
               )}
               <div className="hour-temp">{formatTempF(h.temperatureF)}</div>
               {h.precipPercent !== null && h.precipPercent > 0 && (

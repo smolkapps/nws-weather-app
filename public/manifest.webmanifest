@@ -1,0 +1,28 @@
+{
+  "name": "NWS Weather — U.S. Forecasts",
+  "short_name": "NWS Weather",
+  "description": "Fast, free U.S. weather: current conditions, hourly and 7-day forecasts, and active alerts straight from the National Weather Service. No account, no API key, no tracking.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

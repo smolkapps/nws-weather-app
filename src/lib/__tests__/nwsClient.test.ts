@@ -6,12 +6,12 @@ import {
 } from '../nwsClient';
 import type { FetchLike } from '../nwsClient';
 
-import pointFixture from './fixtures/point.json';
-import forecastFixture from './fixtures/forecast.json';
-import hourlyFixture from './fixtures/hourly.json';
-import observationFixture from './fixtures/observation.json';
-import stationsFixture from './fixtures/stations.json';
-import alertsFixture from './fixtures/alerts.json';
+import pointFixture from '../fixtures/point.json';
+import forecastFixture from '../fixtures/forecast.json';
+import hourlyFixture from '../fixtures/hourly.json';
+import observationFixture from '../fixtures/observation.json';
+import stationsFixture from '../fixtures/stations.json';
+import alertsFixture from '../fixtures/alerts.json';
 
 function json(body: unknown): Response {
   return new Response(JSON.stringify(body), {

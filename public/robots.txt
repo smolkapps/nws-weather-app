@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://smolkapps.github.io/nws-weather-app/sitemap.xml

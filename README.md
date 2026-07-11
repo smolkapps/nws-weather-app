@@ -25,16 +25,26 @@ prices and is not affiliated with Kalshi.
 
 ## Features
 
-- Search by city, `City, ST`, or raw `lat,lon` (coordinates skip geocoding).
+- Search by city, `City, ST`, or raw `lat,lon` (coordinates skip geocoding) —
+  or use one-tap device geolocation.
 - Current conditions: temp, humidity, dew point, wind (speed + cardinal),
   heat index / wind chill when present.
-- Multi-day forecast with precipitation probability and short forecast text.
+- Multi-day forecast with precipitation probability, wind, and short forecast
+  text.
 - Collapsible hour-by-hour forecast strip (next 12 hours), rendered in the
   location's own time zone.
-- Active NWS alerts, sorted by severity (Extreme → Severe → … ) then onset.
+- Active NWS alerts, sorted by severity (Extreme → Severe → … ) then onset,
+  expandable to the full description and safety instructions.
 - Kalshi temperature-market reference + bucket ladder for supported cities.
+- Shareable links: the active search lives in the URL (`?q=Denver, CO`), and a
+  Share button uses the native share sheet (or copies the link).
+- Offline sample mode: if the network is unreachable, the app falls back to a
+  bundled sample forecast (the same committed fixtures the tests use) with a
+  clear banner — the UI never blanks and needs no API key either way.
 - Graceful degradation: a station, hourly, or alerts hiccup never blanks the
   page; the multi-day forecast still renders.
+- Installable: web app manifest + full icon set (favicon, Apple touch, PWA
+  maskable), Open Graph / Twitter cards, sitemap, robots.txt, custom 404.
 
 ## Architecture
 
@@ -48,14 +58,18 @@ src/
     nwsClient.ts    Orchestrates the /points → forecast/stations/obs/alerts flow
     forecast.ts     "today's high" selection for the Kalshi anchor
     kalshi.ts       City → Kalshi market map + temperature-bucket builder
-    __tests__/      Unit tests, including tests against SAVED NWS fixtures
-  components/       React UI (SearchBar, CurrentConditions, Forecast, Alerts, Kalshi)
-  App.tsx           State wiring
+    demo.ts         Offline sample bundle built from the committed fixtures
+    fixtures/       Saved NWS API responses (shared by tests + offline mode)
+    __tests__/      Unit tests against the saved fixtures
+  components/       React UI (SearchBar, CurrentConditions, Forecast, Alerts, Kalshi, Share)
+  App.tsx           State wiring, URL sync, offline fallback
+public/             Icons, manifest, OG image, 404, robots.txt, sitemap.xml
 ```
 
 The network layer takes an injectable `fetch`, so all parsing/orchestration is
-tested against **saved fixtures** (`src/lib/__tests__/fixtures/*.json`, captured
-from the live API) — the test suite never touches the network.
+tested against **saved fixtures** (`src/lib/fixtures/*.json`, captured from the
+live API) — the test suite never touches the network. The same fixtures power
+the app's offline sample mode.
 
 ## Develop
 
