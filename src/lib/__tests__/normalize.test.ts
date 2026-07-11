@@ -15,12 +15,12 @@ import type {
   NwsStationsResponse,
 } from '../types';
 
-import pointFixture from './fixtures/point.json';
-import forecastFixture from './fixtures/forecast.json';
-import hourlyFixture from './fixtures/hourly.json';
-import observationFixture from './fixtures/observation.json';
-import stationsFixture from './fixtures/stations.json';
-import alertsFixture from './fixtures/alerts.json';
+import pointFixture from '../fixtures/point.json';
+import forecastFixture from '../fixtures/forecast.json';
+import hourlyFixture from '../fixtures/hourly.json';
+import observationFixture from '../fixtures/observation.json';
+import stationsFixture from '../fixtures/stations.json';
+import alertsFixture from '../fixtures/alerts.json';
 
 describe('normalizePoint', () => {
   it('maps a real /points response and echoes the requested coordinates', () => {

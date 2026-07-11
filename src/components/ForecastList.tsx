@@ -27,7 +27,16 @@ export function ForecastList({ periods }: Props) {
                 <div className="pop">{p.precipPercent}% precip</div>
               )}
             </div>
-            <div className="detail">{p.shortForecast}</div>
+            <div className="detail">
+              {p.shortForecast}
+              {p.windSpeed && (
+                <span className="wind">
+                  {' '}
+                  · Wind {p.windDirection ? `${p.windDirection} ` : ''}
+                  {p.windSpeed}
+                </span>
+              )}
+            </div>
             <div className="temp">
               {formatTempF(p.temperatureF)}
               {p.temperatureTrend ? (

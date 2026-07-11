@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { todaysHighF } from '../forecast';
 import { normalizeForecast } from '../normalize';
 import type { ForecastPeriod, NwsForecastResponse } from '../types';
-import forecastFixture from './fixtures/forecast.json';
+import forecastFixture from '../fixtures/forecast.json';
 
 function period(over: Partial<ForecastPeriod>): ForecastPeriod {
   return {

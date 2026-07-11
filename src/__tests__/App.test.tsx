@@ -8,12 +8,12 @@ import {
 } from '@testing-library/react';
 import { App } from '../App';
 
-import pointFixture from '../lib/__tests__/fixtures/point.json';
-import forecastFixture from '../lib/__tests__/fixtures/forecast.json';
-import hourlyFixture from '../lib/__tests__/fixtures/hourly.json';
-import observationFixture from '../lib/__tests__/fixtures/observation.json';
-import stationsFixture from '../lib/__tests__/fixtures/stations.json';
-import alertsFixture from '../lib/__tests__/fixtures/alerts.json';
+import pointFixture from '../lib/fixtures/point.json';
+import forecastFixture from '../lib/fixtures/forecast.json';
+import hourlyFixture from '../lib/fixtures/hourly.json';
+import observationFixture from '../lib/fixtures/observation.json';
+import stationsFixture from '../lib/fixtures/stations.json';
+import alertsFixture from '../lib/fixtures/alerts.json';
 
 function json(body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -161,5 +161,56 @@ describe('<App /> end to end (mocked fetch)', () => {
     await waitFor(() =>
       expect(screen.getByText(/Could not find/i)).toBeInTheDocument(),
     );
+  });
+
+  it('falls back to bundled sample data when the initial load cannot reach the network', async () => {
+    // fetch() rejecting models being fully offline.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new TypeError('Failed to fetch');
+      }),
+    );
+
+    render(<App />);
+
+    // The sample banner appears and the fixture forecast renders — the app
+    // stays fully usable offline, with zero network and zero API keys.
+    await waitFor(() =>
+      expect(screen.getByText('Sample data.')).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole('heading', { name: /New York, NY/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('region', { name: /Multi-day forecast/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers sample data from the error state after a failed search', async () => {
+    installFetchMock();
+    render(<App />);
+    await screen.findByRole('heading', { name: /New York, NY/i });
+
+    // Subsequent searches hit a dead network.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new TypeError('Failed to fetch');
+      }),
+    );
+
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'Denver, CO' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /get forecast/i }));
+
+    await screen.findByRole('alert');
+    expect(
+      screen.getByText(/could not reach the weather service/i),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /view sample data/i }));
+    expect(await screen.findByText('Sample data.')).toBeInTheDocument();
   });
 });

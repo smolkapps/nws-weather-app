@@ -3,16 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NWS Weather — Free U.S. Forecasts & Kalshi Temperature Markets</title>
+    <title>NWS Weather — Fast, Free U.S. Forecasts from the National Weather Service</title>
     <meta
       name="description"
-      content="Clean, fast U.S. weather forecasts from the free National Weather Service (NWS) API. See the daily forecast high alongside the matching Kalshi temperature market for NYC, Chicago, Miami, Austin, Denver, LA, and Philadelphia."
+      content="Fast, free U.S. weather with no account and no API key: current conditions, hourly and 7-day forecasts, and severity-sorted alerts straight from the National Weather Service — plus Kalshi temperature-market context for major cities."
     />
-    <meta name="theme-color" content="#0b3d91" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%85%3C/text%3E%3C/svg%3E" />
+    <link rel="canonical" href="https://smolkapps.github.io/nws-weather-app/" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NWS Weather" />
+    <meta property="og:title" content="NWS Weather — Fast, Free U.S. Forecasts" />
+    <meta
+      property="og:description"
+      content="Current conditions, hourly and 7-day forecasts, and active alerts for any U.S. location — straight from the National Weather Service. No account, no API key, no tracking."
+    />
+    <meta property="og:url" content="https://smolkapps.github.io/nws-weather-app/" />
+    <meta property="og:image" content="https://smolkapps.github.io/nws-weather-app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="NWS Weather app: sun-and-cloud logo with the tagline “Fast, free U.S. forecasts”"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NWS Weather — Fast, Free U.S. Forecasts" />
+    <meta
+      name="twitter:description"
+      content="Current conditions, hourly and 7-day forecasts, and active alerts for any U.S. location — straight from the National Weather Service. No account, no API key, no tracking."
+    />
+    <meta name="twitter:image" content="https://smolkapps.github.io/nws-weather-app/og.png" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <p style="font-family: system-ui, sans-serif; padding: 1.5rem; text-align: center">
+        NWS Weather needs JavaScript to fetch and render forecasts. Please
+        enable JavaScript, or get forecasts directly at
+        <a href="https://www.weather.gov">weather.gov</a>.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
