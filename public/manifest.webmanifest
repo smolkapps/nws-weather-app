@@ -1,7 +1,7 @@
 {
   "name": "NWS Weather — U.S. Forecasts",
   "short_name": "NWS Weather",
-  "description": "Fast, free U.S. weather: current conditions, hourly and 7-day forecasts, and active alerts straight from the National Weather Service. No account, no API key, no tracking.",
+  "description": "Fast, free U.S. weather: current conditions, hourly and 7-day forecasts, and active alerts straight from the National Weather Service. No account, no API key, website page visits counted with Umami.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

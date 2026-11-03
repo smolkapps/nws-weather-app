@@ -150,7 +150,7 @@ export function App() {
         <p>
           Fast, free U.S. forecasts straight from the National Weather Service —
           current conditions, hourly and 7-day outlooks, and active alerts. No
-          account, no API key, no tracking.
+          account or API key. Website page visits are counted with Umami; weather searches are excluded. <a href="/privacy.html">Website privacy</a>.
         </p>
       </header>
 

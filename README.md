@@ -6,7 +6,7 @@ conditions, a multi-day forecast, and active weather alerts — and, for cities
 that have one, a contextual reference to the matching **Kalshi daily
 high-temperature market**.
 
-Built with Vite + React + TypeScript. No API key, no backend, no tracking.
+Built with Vite + React + TypeScript. No API key, no backend, website page visits counted with Umami.
 
 ## Why
 
