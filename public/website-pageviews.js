@@ -18,10 +18,8 @@
   if (!Object.prototype.hasOwnProperty.call(pages, key)) return;
   if (navigator.globalPrivacyControl === true || ['1', 'yes'].includes(String(navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack))) return;
   try { if (localStorage.getItem('umami.disabled')) return; } catch (_) { /* Storage is optional. */ }
-  // Require the page-level policy too: loader referrerPolicy alone does not
-  // govern the SDK's later fetch. Fail closed if the reviewed head is missing.
-  const policies = document.querySelectorAll('meta[name="referrer"]');
-  if (policies.length !== 1 || policies[0].content !== 'no-referrer' || window.umami || window.websitePageviewLoaded) return;
+  // Referrer suppression belongs only to the tracking requests.
+  if (window.umami || window.websitePageviewLoaded) return;
   window.websitePageviewLoaded = true;
   let accepted = false;
   window.websitePageviewBeforeSend = (type, payload) => {
@@ -36,13 +34,14 @@
     };
   };
   const script = document.createElement('script');
-  script.src = 'https://umami.smolkin.org/script.js';
-  script.integrity = 'sha384-KovSIPpdrAZNHs+M91d7FOrLat5rqcpTtQUq/GLIzYwAt+eN0EQHlgdUgm/0U2j+';
+  script.src = prefix + 'umami-pageview-sdk.js';
+  script.integrity = 'sha384-eUvX2TuFyDHbvlGBu7oFKB/wBHKpuqrr9uVmulFcbAwLVHxJy4H6udPJWulcUIzS';
   script.crossOrigin = 'anonymous';
   script.referrerPolicy = 'no-referrer';
   script.async = true;
   for (const [name, value] of Object.entries({
     'website-id': '0ee0e19b-b29b-4c98-b3f6-a92a43b4ba5a',
+    'host-url': 'https://umami.smolkin.org',
     'auto-track': 'false', 'auto-pageview': 'false', 'performance': 'false',
     'exclude-search': 'true', 'exclude-hash': 'true', 'do-not-track': 'true',
     'fetch-credentials': 'omit', 'before-send': 'websitePageviewBeforeSend'
